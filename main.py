@@ -12,6 +12,7 @@ import shutil
 import ast
 from datetime import datetime
 from pathlib import Path
+from typing import Optional, Tuple, Union
 
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
@@ -227,7 +228,7 @@ async def get_user_projects(user_id: int) -> list:
     await conn.close()
     return projects
 
-async def get_project_details(user_id: int, project_name: str) -> sqlite3.Row | None:
+async def get_project_details(user_id: int, project_name: str) -> Optional[sqlite3.Row]:
     conn = await get_db_conn()
     conn.row_factory = sqlite3.Row
     c = await conn.cursor()
@@ -264,7 +265,7 @@ def is_user_banned(user_id: int) -> bool:
     return user_id in banned_users
 
 # --- Dependency Handling Helpers ---
-async def create_venv_if_not_exists(user_folder: Path) -> tuple[Path | None, str | None]:
+async def create_venv_if_not_exists(user_folder: Path) -> Tuple[Optional[Path], Optional[str]]:
     venv_path = user_folder / "venv"
     if not venv_path.exists():
         logger.info("Creating venv for user {} at {}".format(user_folder.name, venv_path))
@@ -311,7 +312,7 @@ def parse_imports(file_content: str) -> set[str]:
         logger.warning("AST parse error: {}".format(e))
     return imports
 
-async def install_dependencies(user_folder: Path, status_msg: types.Message, dependencies: set[str] = None, requirements_file: Path = None) -> str | None:
+async def install_dependencies(user_folder: Path, status_msg: types.Message, dependencies: set[str] = None, requirements_file: Path = None) -> Optional[str]:
     venv_path, err = await create_venv_if_not_exists(user_folder)
     if err:
         return "Failed to create venv: {}".format(err)
@@ -492,7 +493,7 @@ async def stop_project(user_id: int, project_name: str, message: types.Message):
 # --- FSM Cancel Handler ---
 @dp.message(Command("cancel"), Command("start"))
 @dp.callback_query(F.data == "fsm_cancel")
-async def fsm_cancel(event: types.Message | types.CallbackQuery, state: FSMContext):
+async def fsm_cancel(event: Union[types.Message, types.CallbackQuery], state: FSMContext):
     await state.clear()
     
     if isinstance(event, types.Message):
@@ -747,7 +748,7 @@ async def fsm_project_file(message: types.Message, state: FSMContext):
 
 # --- "My Projects" & "status" Handlers ---
 @dp.callback_query(F.data == "my_projects")
-async def callback_my_projects(callback_or_message: types.CallbackQuery | types.Message):
+async def callback_my_projects(callback_or_message: Union[types.CallbackQuery, types.Message]):
     if isinstance(callback_or_message, types.CallbackQuery):
         user_id = callback_or_message.from_user.id
         message = callback_or_message.message
