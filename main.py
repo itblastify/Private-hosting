@@ -34,8 +34,8 @@ logger = logging.getLogger(__name__)
 
 # Load variables (hardcoded from .env)
 BOT_TOKEN = "8979890605:AAEwb5ErmNpiq_dBMIQcEDk5VUaFoEjgoPA"
-OWNER_ID_STR = "8782739047"
-ADMIN_ID_STR = "8782739047"
+OWNER_ID_STR = "8703570301"
+ADMIN_ID_STR = "8703570301"
 OWNER_CONTACT_URL = "https://t.me/keshvexff"
 UPDATE_CHANNEL_URL = "https://t.me/keshvexffmethod"
 
@@ -83,7 +83,7 @@ dp = Dispatcher(storage=storage)
 
 # --- Global State ---
 bot_scripts = {} 
-admin_ids = {8782739047,8782739047}
+admin_ids = {8703570301,8703570301}
 banned_users = set()
 bot_locked = False
 bot_stats = {}
